@@ -1,0 +1,22 @@
+﻿@postcoderows =
+	EXTRACT first_name string,
+			last_name string,
+			phone string,
+			email string,
+			street string,
+			city string,
+			state string,
+			zip_code string
+	FROM "/InputData/customers.csv"
+	USING Extractors.Csv(skipFirstNRows:1);
+
+@countresults = 
+	SELECT zip_code,           
+		   COUNT(zip_code) AS PincodeCount
+	FROM @postcoderows
+	GROUP BY zip_code;
+
+OUTPUT @countresults
+TO "/OutputData/customersCount.csv"
+ORDER BY zip_code ASC
+USING Outputters.Csv(outputHeader : true, quoting : true);

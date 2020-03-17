@@ -1,0 +1,38 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>f154c432-f6f6-4ee4-89c5-f31bb4939d30</ProjectGuid>
+    <OutputType>File</OutputType>
+    <AssemblyName>AzureDataLakeUSQL.usqlpack</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <USQLProjectVersion>2</USQLProjectVersion>
+    <Name>AzureDataLakeUSQL</Name>
+    <RootNamespace>AzureDataLakeUSQL</RootNamespace>
+    <RuntimeVersion>default</RuntimeVersion>
+    <USqlLocalTestDataFolders>..\..\..\..\Videos</USqlLocalTestDataFolders>
+    <USqlLocalTestDataFolderForceOverwrite>True</USqlLocalTestDataFolderForceOverwrite>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Script Include="PincodeScript.usql" />
+    <Script Include="CustomersScript.usql" />
+    <ScriptCode Include="PincodeScript.usql.cs">
+      <DependentUpon>PincodeScript.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="CustomersScript.usql.cs">
+      <DependentUpon>CustomersScript.usql</DependentUpon>
+    </ScriptCode>
+  </ItemGroup>
+  <!-- check for SDK Build target in current path then in USQLSDKPath-->
+  <Import Project="UsqlSDKBuild.targets" Condition="Exists('UsqlSDKBuild.targets')" />
+  <Import Project="$(USQLSDKPath)\UsqlSDKBuild.targets" Condition="!Exists('UsqlSDKBuild.targets') And '$(USQLSDKPath)' != '' And Exists('$(USQLSDKPath)\UsqlSDKBuild.targets')" />
+</Project>

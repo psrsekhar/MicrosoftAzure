@@ -1,0 +1,25 @@
+﻿@postcoderows =
+	EXTRACT officename string,
+			pincode string,
+			officetype string,
+			Deliverystatus string,
+			divisionname string,
+			regionname string,
+			circlename string,
+			taluk string,
+            districtname string,
+            statename string
+	FROM "/InputData/pincode.csv"
+	USING Extractors.Csv(skipFirstNRows:1);
+
+@countresults = 
+	SELECT pincode,
+           taluk,
+		   COUNT(pincode) AS PincodeCount
+	FROM @postcoderows
+	GROUP BY pincode, taluk;
+
+OUTPUT @countresults
+TO "/OutputData/postOfficeCount.csv"
+ORDER BY pincode ASC
+USING Outputters.Csv(outputHeader : true, quoting : true);
