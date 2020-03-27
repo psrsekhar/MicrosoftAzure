@@ -1,26 +1,37 @@
-﻿using DataServices.Models;
-using Microsoft.Azure.ServiceBus;
-using Newtonsoft.Json;
+﻿using StackExchange.Redis;
 using System;
-using System.Text;
-using System.Threading.Tasks;
+using DataServices.Models;
+using Newtonsoft.Json;
 
-namespace ServiceBusQueue
+namespace AzureRedisCache
 {
-    public class Program
+    class Program
     {
-        static string connectionString = "connection string here";
-        public static async Task Main()
+        private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
         {
-            Random random = new Random();
-            Customer customer = new Customer();
+            string connectionString = "enetr your connection string here";
+            return ConnectionMultiplexer.Connect(connectionString);
+        });
+
+        public static ConnectionMultiplexer Connection
+        {
+            get
+            {
+                return lazyConnection.Value;
+            }
+        }
+        static void Main(string[] args)
+        {
             string[] first_name = { "Liam", "Emma", "Adler", "Anderson", "Beckett", "Brady", "Carson", "Carter" };
             string[] city = { "Campbell", "Orchard Park", "Fairport", "Buffalo", "Monroe", "Port Washington", "Monsey" };
             string[] state = { "NY", "CA", "TX" };
+            
+            Random random = new Random();
+            Customer customer = new Customer();
             try
             {
-                IQueueClient queueClient = new QueueClient(connectionString, "customers");
-                for (int i = 1; i > 0; i++)
+                IDatabase cache = Connection.GetDatabase();
+                for (int i = 1; i <= 10; i++)
                 {
                     customer.first_name = first_name[random.Next(0, 8)];
                     customer.last_name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[random.Next(0, 25)].ToString();
@@ -30,15 +41,18 @@ namespace ServiceBusQueue
                     customer.city = city[random.Next(0, 6)];
                     customer.state = state[random.Next(0, 2)];
                     customer.zip_code = "" + random.Next(10000, 99999);
-                    Message message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(customer)));
-                    await queueClient.SendAsync(message);
-                    System.Threading.Thread.Sleep(2000);
+
+                    //to insert data into cache
+                    cache.StringSet(customer.phone, JsonConvert.SerializeObject(customer));
                 }
-                await queueClient.CloseAsync();
+
+                customer = JsonConvert.DeserializeObject<Customer>(cache.StringGet(customer.phone));
+                Console.WriteLine("Name : " + customer.last_name + " " + customer.first_name);
+                Connection.Close();
             }
-            catch(Exception exception)
+            catch(Exception e)
             {
-                Console.WriteLine("Exception : " + exception.Message);
+                Console.WriteLine(e.Message);
             }
         }
     }

@@ -17,10 +17,10 @@ namespace AzureSqlService
             Customer customer = new Customer();
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
-            builder.DataSource = "server address";
+            builder.DataSource = "server name";
             builder.UserID = "user name";
-            builder.Password = "Password";
-            builder.InitialCatalog = "Database name";
+            builder.Password = "password";
+            builder.InitialCatalog = "database name";
             try
             {
                 StringBuilder sb = new StringBuilder();
@@ -52,7 +52,7 @@ namespace AzureSqlService
                         if (command.ExecuteNonQuery() >= 0)
                         {
                             connection.Close();
-                            System.Threading.Thread.Sleep(5000);
+                            System.Threading.Thread.Sleep(2000);
                         }
                     }
                 }                
