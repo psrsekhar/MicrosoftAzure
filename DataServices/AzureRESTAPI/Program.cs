@@ -15,8 +15,12 @@ namespace AzureRESTAPI
         public static async Task Main(string[] args)
         {
             DataModel dataModel = new DataModel();
+            dataModel.ClientId = "";
+            dataModel.ClientSecret = "";
+            dataModel.TenantId = "";
+
             var bearerToken = await GetBearerToken(dataModel.TenantId, dataModel.ClientId, dataModel.ClientSecret);
-            var subscriptionResult = await GetApiResponseAsync("https://management.azure.com/subscriptions?api-version=2016-06-01", bearerToken);
+            var subscriptionResult = await GetAsync("https://management.azure.com/subscriptions?api-version=2016-06-01", string.Empty, bearerToken);
             JToken result = JToken.Parse(subscriptionResult)["value"];
             foreach (var item in result.Children())
             {
@@ -49,13 +53,6 @@ namespace AzureRESTAPI
             }
         }
 
-        private static async Task<string> GetApiResponseAsync(string api, string brearerToken)
-        {
-            var result = await GetAsync(api, string.Empty, brearerToken);
-            result = JObject.Parse(result).ToString();
-            return result;
-        }
-
         public static async Task<string> GetAsync(string baseUrl, string apiResourse = "", string token = null)
         {
             string result = "You did not get any resonse";
@@ -75,6 +72,7 @@ namespace AzureRESTAPI
                     result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 }
             }
+            result = JObject.Parse(result).ToString();
             return result;
         }        
 
